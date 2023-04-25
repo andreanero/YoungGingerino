@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Multimedia folder
+playlist/
+visual/
+
 # Distribution / packaging
 .Python
 build/
@@ -25,6 +29,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
