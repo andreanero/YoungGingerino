@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools>=61.2", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faust"
+authors = [
+    { name = "wakko", email = "andrea.nero@gmail.com" },
+]
+dynamic = [
+    "version",
+]
+description = "Faust package"
+readme = "README.md"
+
+requires-python = ">=3.10"
+keywords = [
+    "Playlist",
+    "Visual",
+    "Set",
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy",
+    "datetime",
+    "os",
+    "pygame",
+    "cv2",
+    "time", 
+]
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/andreanero/Faust"
+"Bug Tracker" = "https://github.com/andreanero/Faust/issues"
+
+[tool.setuptools]
+# https://setuptools.pypa.io/en/latest/userguide/quickstart.html
+#packages = ["faust"]
+include-package-data = false # true by default
+
+[tool.setuptools.package-data]
+#"*" = ["**/*.tex", "**/*.pdf"]
+faust = ["utils/*.service"]
+#[tool.setuptools.exclude-package-data]
+
+[tool.setuptools.packages.find]
+## All the following settings are optional:
+where = ["."] # ["."] by default
+include = ["faust*"]  # ["*"] by default
+exclude = ["**.tests"]  # empty by default
+namespaces = false  # true by default
+
+[tool.setuptools_scm]
+# https://github.com/pypa/setuptools_scm
+version_scheme = "post-release"
+write_to = "version.txt"
+
+[project.scripts]
+faust_main = "faust.main:main"
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+addopts = "--verbose --cov=displaced_diffusion_lmm --cov-report=term --cov-report=html --cov-report=xml"
+log_cli = true
+log_cli_level = "NOTSET"
+markers = [
+    "unit: unit tests (select with '-m \"unit\"')",
+    "integration: integration tests (deselect with '-m \"not integration\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "exclude_flake8: this is just to exclude from flake8",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "*/tests/*",
+]
+
+[tool.flake8]
+# https://pypi.org/project/Flake8-pyproject/
+ignore = "W503,D100,D104"
+max_line_length = "160"
+exclude = "venv,.eggs,.tox,doc"
+max_complexity = "10"
+docstring_convention = "google"
+ignore_decorators = ".*pytest\\.mark.*"
+
+[tool.tox]
+# https://tox.wiki/en/latest/example/basic.html
+legacy_tox_ini = """
+[tox]
+"""
+
+# ... other project metadata fields as specified in:
+#     https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
