@@ -38,10 +38,10 @@ def shutdown_func():
             logger.error('OS not handled. Check it {}.'.format(platform))
 
 
-def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
+def runner_main(video_path: Path, playlist_path: Path, shutdown: bool, playlist_name: str, interframe_wait_ms=30):
     playlist = get_playlist(playlist_path)
 
-    report = open('Faust Project.txt', 'w')
+    report = open('{}.txt'.format(playlist_name), 'w')
     tracklist_title = 'Curb your enthusiasm. It is just a dream.'
     report.writelines(tracklist_title)
     report.write('\n')
@@ -53,7 +53,7 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
     ##### main part
     pygame.mixer.init()
     pygame.display.init()
-    pygame.display.set_caption('Faust Project...')
+    pygame.display.set_caption('{}...'.format(playlist_name))
     pygame.font.init()
 
     song = playlist.pop()
@@ -70,8 +70,7 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
     logger.info('Playing first track: {}'.format(song))
     pygame.mixer.music.play()  # Play the music
 
-    window_name = 'FaustProject'
-    interframe_wait_ms = 30  # note: the value was set at 30, but it was going too fast
+    window_name = playlist_name
 
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -87,7 +86,8 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
 
         ret, frame = cap.read()
         if not ret:
-            logger.error('Reached end of video, exiting.')
+            logger.warning('Reached end of video, exiting.')
+            break
 
         cv2.imshow(window_name, frame)
 
@@ -104,7 +104,7 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
 
                     pygame.mixer.music.load(song_path)
                     pygame.mixer.music.play()
-                    logger.info('Queuing next song: {}'.format(str(song)))
+                    logger.info('Queuing next song: {}'.format(song))
                     song = playlist.pop()
                     try:
                         pygame.mixer.music.queue(song_path)  # Queue the next one in the list
@@ -119,13 +119,12 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
 
     cap.release()
     cv2.destroyAllWindows()
-    quit()
 
     #####
     endTime = datetime.datetime.now()
-    report = open('Faust Project.txt', 'w')
+    report = open('{}.txt'.format(playlist_name), 'w')
     report.write('The tracklist has ended at {} \n'.format(endTime))
-    report.write('The time spent running Faust is: {}'.format(str(endTime - startTime)))
+    report.write('The time spent running {} is: {}'.format(playlist_name, endTime - startTime))
     report.close()
 
     if shutdown:
@@ -138,4 +137,4 @@ if __name__ == '__main__':
     video_path = Path('visual\\BeachHouse7.mp4')
     playlist_path = Path('playlist\\')
     os.system('cls')
-    runner_main(video_path, playlist_path, True)
+    runner_main(video_path, playlist_path, 'YoungGingerino', True)
