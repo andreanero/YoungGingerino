@@ -3,11 +3,14 @@ import os
 import pygame
 import cv2
 import logging
+import subprocess
 
 from pathlib import Path
+from sys import platform
 
 # module logger
 logger = logging.getLogger(__name__)
+
 
 def get_playlist(path):
     # given a path in a string format it gets back the playlist as a list
@@ -21,10 +24,21 @@ def get_playlist(path):
     return playlist
 
 
-def main():
-    video_path = Path('visual\\BeachHouse7.mp4')
-    os.system('cls')
-    playlist_path = Path('playlist\\')
+def shutdown_func():
+    # given the OS it shuts down the machine.
+    match platform:
+        case 'linux':
+            subprocess.Popen(['shutdown', '-h', 'now'])
+        case 'win32':
+            os.system("shutdown /s /t 1")
+        case 'darwin':
+            # fuck Mac OS X
+            os.system("shutdown -h now")
+        case _:
+            logger.error('OS not handled. Check it {}.'.format(platform))
+
+
+def runner_main(video_path: Path, playlist_path: Path, shutdown: bool):
     playlist = get_playlist(playlist_path)
 
     report = open('Faust Project.txt', 'w')
@@ -82,40 +96,46 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:  # A track has ended
-                logger.info('Track has ended')
+                logger.info('Track has ended.')
                 song_path = Path.joinpath(playlist_path, song)
-                if len(playlist) > 0:  # If there are more tracks in the queue... (A non-empty list has length)
-                    logger.info('Songs left in playlist {}'.format(len(playlist)))
+                n_songs_left = len(playlist)
+                if n_songs_left > 0:  # If there are more tracks in the queue... (A non-empty list has length)
+                    logger.info('Songs left in playlist: {}'.format(n_songs_left))
 
                     pygame.mixer.music.load(song_path)
                     pygame.mixer.music.play()
                     logger.info('Queuing next song: {}'.format(str(song)))
                     song = playlist.pop()
-                    pygame.mixer.music.queue(song)  # Queue the next one in the list
-                elif idx == 0:  # ToDO: awful way to handle the repetition of the last song
-                    pygame.mixer.music.load(song_path)
-                    pygame.mixer.music.play()
-                    logger.info('Playlist is empty.')
-                    idx = +1
+                    try:
+                        pygame.mixer.music.queue(song_path)  # Queue the next one in the list
+                    except:
+                        logger.info('Playlist is empty.')
+                        running = False
+                        break
                 else:
                     running = False
-                    os.system(
-                        'shutdown.exe /h')  # Raspbian: from subprocess import call, call('sudo nohup shutdown -h now', shell=True)
+
+
 
     cap.release()
     cv2.destroyAllWindows()
-
     quit()
 
     #####
     endTime = datetime.datetime.now()
     report = open('Faust Project.txt', 'w')
-    report.write('The tracklist has ended at ')
-    report.write(str(endTime))
-    report.write('\n')
-    report.write('The time spent running Faust is: {0}'.format(str(endTime - startTime)))
+    report.write('The tracklist has ended at {} \n'.format(endTime))
+    report.write('The time spent running Faust is: {}'.format(str(endTime - startTime)))
     report.close()
+
+    if shutdown:
+        shutdown_func()
+    else:
+        pass
 
 
 if __name__ == '__main__':
-    main()
+    video_path = Path('visual\\BeachHouse7.mp4')
+    playlist_path = Path('playlist\\')
+    os.system('cls')
+    runner_main(video_path, playlist_path, True)
