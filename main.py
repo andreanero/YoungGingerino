@@ -92,7 +92,8 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool, playlist_
         cv2.imshow(window_name, frame)
 
         if cv2.waitKey(interframe_wait_ms) & 0x7F == ord('q'):
-            logger.error('Exit requested.')
+            logger.info('Exit requested.')
+            quit()
 
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:  # A track has ended
@@ -129,12 +130,10 @@ def runner_main(video_path: Path, playlist_path: Path, shutdown: bool, playlist_
 
     if shutdown:
         shutdown_func()
-    else:
-        pass
 
 
 if __name__ == '__main__':
     video_path = Path('visual\\BeachHouse7.mp4')
     playlist_path = Path('playlist\\')
     os.system('cls')
-    runner_main(video_path, playlist_path, 'YoungGingerino', True)
+    runner_main(video_path, playlist_path, False, 'YoungGingerino')
